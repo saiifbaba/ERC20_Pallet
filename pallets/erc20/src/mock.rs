@@ -1,29 +1,54 @@
-use crate as pallet_template;
-use frame_support::derive_impl;
-use sp_runtime::BuildStorage;
+// This module provides a mock runtime specific for testing the pallet's functionality.
+#![cfg(test)]
 
-type Block = frame_system::mocking::MockBlock<Test>;
+use frame_support::{parameter_types, traits::{ConstU32, Everything}};
+use frame_system as system;
+use sp_core::H256;
+use sp_runtime::{traits::{BlakeTwo256, IdentityLookup}, testing::Header};
 
-// Configure a mock runtime to test the pallet.
-frame_support::construct_runtime!(
-	pub enum Test
-	{
-		System: frame_system,
-		TemplateModule: pallet_template,
-	}
-);
+pub type AccountId = u64;
+pub type Balance = u128;
 
-#[derive_impl(frame_system::config_preludes::TestDefaultConfig)]
-impl frame_system::Config for Test {
-	type Block = Block;
+frame_support::construct_runtime! {
+    pub enum TestRuntime where
+        Block = Block,
+        NodeBlock = Block,
+        UncheckedExtrinsic = UncheckedExtrinsic
+    {
+        System: frame_system::{Pallet, Config<T>, Call, Storage, Event<T>},
+        TemplatePallet: pallet_template::{Pallet, Call, Storage, Event<T>},
+    }
 }
 
-impl pallet_template::Config for Test {
-	type RuntimeEvent = RuntimeEvent;
-	type WeightInfo = ();
+impl frame_system::Config for TestRuntime {
+    type BaseCallFilter = Everything;
+    type Origin = Origin;
+    type Call = Call;
+    type Index = u32;
+    type BlockNumber = u32;
+    type Hash = H256;
+    type Hashing = BlakeTwo256;
+    type AccountId = AccountId;
+    type Lookup = IdentityLookup<AccountId>;
+    type Header = Header;
+    type Event = Event;
+    type BlockHashCount = ConstU32<250>;
+    type Version = ();
+    type PalletInfo = PalletInfo;
+    type AccountData = ();
+    type OnNewAccount = ();
+    type OnKilledAccount = ();
 }
 
-// Build genesis storage according to the mock runtime.
-pub fn new_test_ext() -> sp_io::TestExternalities {
-	frame_system::GenesisConfig::<Test>::default().build_storage().unwrap().into()
+parameter_types! {
+    pub const BlockWeights: frame_support::weights::Weight = frame_support::weights::Weight::from_ref_time(1024);
+    pub const BlockLength: frame_support::limits::BlockLength = frame_support::limits::BlockLength::max_with_normal_ratio(1024, 1);
 }
+
+impl pallet_template::Config for TestRuntime {
+    type RuntimeEvent = Event;
+    type WeightInfo = ();
+}
+
+pub type Block = frame_system::Block<TestRuntime>;
+pub type UncheckedExtrinsic = frame_system::UncheckedExtrinsic<TestRuntime>;

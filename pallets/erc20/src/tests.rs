@@ -1,27 +1,48 @@
-use crate::{mock::*, Error, Event, Something};
-use frame_support::{assert_noop, assert_ok};
+#![cfg(test)]
+
+use crate::{Error, mock::*, Event};
+use frame_support::{assert_ok, assert_err};
 
 #[test]
-fn it_works_for_default_value() {
-	new_test_ext().execute_with(|| {
-		// Go past genesis block so events get deposited
-		System::set_block_number(1);
-		// Dispatch a signed extrinsic.
-		assert_ok!(TemplateModule::do_something(RuntimeOrigin::signed(1), 42));
-		// Read pallet storage and assert an expected result.
-		assert_eq!(Something::<Test>::get(), Some(42));
-		// Assert that the correct event was deposited
-		System::assert_last_event(Event::SomethingStored { something: 42, who: 1 }.into());
-	});
+fn test_do_something() {
+    new_test_ext().execute_with(|| {
+        // Arrange: Set an initial value.
+        let initial_value = 42;
+        assert_ok!(TemplatePallet::do_something(Origin::signed(1), initial_value));
+
+        // Act: Retrieve the value from storage.
+        let stored_value = TemplatePallet::something();
+
+        // Assert: Check that the value is as expected.
+        assert_eq!(stored_value, Some(initial_value));
+
+        // Assert: Check that the event was emitted correctly.
+        System::assert_last_event(Event::SomethingStored { something: initial_value, who: 1 }.into());
+    });
 }
 
 #[test]
-fn correct_error_for_none_value() {
-	new_test_ext().execute_with(|| {
-		// Ensure the expected error is thrown when no value is present.
-		assert_noop!(
-			TemplateModule::cause_error(RuntimeOrigin::signed(1)),
-			Error::<Test>::NoneValue
-		);
-	});
+fn test_cause_error() {
+    new_test_ext().execute_with(|| {
+        // Arrange: No value is set initially.
+        
+        // Act & Assert: Call cause_error and expect an error.
+        assert_err!(TemplatePallet::cause_error(Origin::signed(1)), Error::<TestRuntime>::NoneValue);
+    });
+}
+
+#[test]
+fn test_increment_value() {
+    new_test_ext().execute_with(|| {
+        // Arrange: Set an initial value.
+        let initial_value = 42;
+        assert_ok!(TemplatePallet::do_something(Origin::signed(1), initial_value));
+
+        // Act: Increment the value.
+        assert_ok!(TemplatePallet::cause_error(Origin::signed(1)));
+
+        // Assert: Check that the value has been incremented.
+        let updated_value = TemplatePallet::something().unwrap();
+        assert_eq!(updated_value, initial_value + 1);
+    });
 }
