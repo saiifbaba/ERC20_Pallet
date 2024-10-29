@@ -24,4 +24,24 @@ decl_error! {
         InsufficientBalance,
     }
 }
+decl_module! {
+    pub struct Module<T: Config> for enum Call where origin: T::Origin {
+        fn deposit_event() = default;
+
+        #[weight = 10_000]
+        pub fn transfer(origin, to: T::AccountId, amount: u64) -> dispatch::DispatchResult {
+            let sender = ensure_signed(origin)?;
+            let sender_balance = Self::balance_of(&sender);
+            ensure!(sender_balance >= amount, Error::<T>::InsufficientBalance);
+            
+            <Balances<T>>::insert(&sender, sender_balance - amount);
+            let receiver_balance = Self::balance_of(&to);
+            <Balances<T>>::insert(&to, receiver_balance + amount);
+
+            Self::deposit_event(RawEvent::Transfer(sender, to, amount));
+            Ok(())
+        }
+    }
+}
+
 
