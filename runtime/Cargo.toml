@@ -32,7 +32,7 @@ sp-consensus-grandpa = { version = "4.0.0", features = ["serde"] }
 sp-core = { version = "4.0.0", features = ["serde"] }
 sp-runtime = { version = "4.0.0", features = ["serde"] }
 
-# Your ERC20 pallet dependency
+# Your ERC20 pallet dependency are added
 [dependencies.erc20]
 path = "../pallets/erc20"
 default-features = false
