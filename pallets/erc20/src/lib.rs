@@ -14,3 +14,14 @@ decl_storage! {
         Balances get(fn balance_of): map hasher(blake2_128_concat) T::AccountId => u64;
     }
 }
+decl_event!(
+    pub enum Event<T> where AccountId = <T as frame_system::Config>::AccountId {
+        Transfer(AccountId, AccountId, u64),
+    }
+);
+decl_error! {
+    pub enum Error for Module<T: Config> {
+        InsufficientBalance,
+    }
+}
+
