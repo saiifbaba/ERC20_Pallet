@@ -25,6 +25,7 @@ pub use frame_support::{
 		ConstBool, ConstU128, ConstU32, ConstU64, ConstU8, KeyOwnerProofSystem, Randomness,
 		StorageInfo,
 	},
+	ERC20: erc20::{Module, Call, Storage, Event<T>},
 	weights::{
 		constants::{
 			BlockExecutionWeight, ExtrinsicBaseWeight, RocksDbWeight, WEIGHT_REF_TIME_PER_SECOND,
@@ -46,8 +47,7 @@ pub use sp_runtime::BuildStorage;
 pub use sp_runtime::{Perbill, Permill};
 
 /// Import the template pallet.
-pub use pallet_template;
-
+pub use erc20;
 /// An index to a block.
 pub type BlockNumber = u32;
 
